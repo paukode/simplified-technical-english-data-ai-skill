@@ -13,7 +13,7 @@ ALLOWED_KEYS = {"name", "description", "license", "compatibility", "metadata", "
 # Whisper Studio rewrites these bare relative paths to absolute paths.
 WHISPER_REL_REF = re.compile(r"(?<![\w/.])((?:scripts|references|assets)/[\w./\-]+)")
 EM_DASH = chr(0x2014)
-TEXT_SUFFIXES = {".md", ".py", ".txt", ".yaml", ".yml", ".json", ".toml", ""}
+TEXT_SUFFIXES = {".md", ".py", ".sh", ".txt", ".yaml", ".yml", ".json", ".toml", ""}
 
 
 def frontmatter(text):

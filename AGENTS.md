@@ -1,7 +1,7 @@
 # Rules for changes to this repository
 
 This repository contains the `ste-data-ai` agent skill.
-The skill must work in Claude, Codex, Kiro, Whisper Studio, and other agents that read `SKILL.md`.
+The skill must work in Claude, Codex, Kiro, [Whisper Studio](https://github.com/paukode/whisper-studio), and other agents that read `SKILL.md`.
 
 ## Commands
 
@@ -29,6 +29,7 @@ python3 skills/ste-data-ai/scripts/ste_check.py --strict FILE
 8. Do not use em dashes in any file. Use a comma, a colon, a period, or parentheses.
 9. When you add a word to `substitutions.md`, make sure that the vocabulary and the terms files do not contain it. A test finds each conflict.
 10. When you add an example, give it a "Type" line, a "Before" block, an "After" block, and a "Changes" line. Use the format of the other examples.
+11. Keep `install.sh` in POSIX `sh`. It must operate on macOS and on Linux with only `curl`, `tar`, and `python3`.
 
 ## Commit messages
 
