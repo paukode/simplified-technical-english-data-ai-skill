@@ -5,6 +5,7 @@ license: MIT (see LICENSE.txt)
 compatibility: Agent Skills format. Works in Claude, Codex, Kiro, Whisper Studio, and other agents that read SKILL.md. The optional check script needs Python 3.8 or later and no other packages.
 metadata:
   version: "1.0.0"
+  repository: "https://github.com/paukode/simplified-technical-english-data-ai-skill"
   standard: "ASD-STE100 principles, not an official ASD document"
 ---
 

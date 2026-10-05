@@ -1,4 +1,4 @@
-# ste-data-ai
+# Simplified Technical English skill for data and AI
 
 An agent skill that writes, rewrites, and checks technical text in Simplified Technical English (STE).
 The skill adapts STE to IT, cloud, data engineering, data architecture, machine learning, generative AI, and agentic AI.
@@ -54,6 +54,8 @@ The folder `skills/ste-data-ai/references/examples/` has 75 examples for the 13 
 Clone the repository. Then run the install script for each agent that you use:
 
 ```bash
+git clone https://github.com/paukode/simplified-technical-english-data-ai-skill.git
+cd simplified-technical-english-data-ai-skill
 python3 tools/install.py claude codex kiro whisper
 ```
 
