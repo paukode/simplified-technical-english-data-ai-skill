@@ -2,9 +2,46 @@
 
 An agent skill that writes, rewrites, and checks technical text in Simplified Technical English (STE).
 The skill adapts STE to IT, cloud, data engineering, data architecture, machine learning, generative AI, and agentic AI.
-It works in Claude, Codex, Kiro, Whisper Studio, and other agents that read `SKILL.md`.
+It works in Claude, Codex, Kiro, [Whisper Studio](https://github.com/paukode/whisper-studio), and other agents that read `SKILL.md`.
 
 This README is in STE.
+
+## Install with one command
+
+Copy the line for your agent to your terminal. The command uses `curl`, `tar`, and `python3`, and operates on macOS and on Linux.
+
+Claude Code:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/paukode/simplified-technical-english-data-ai-skill/main/install.sh | sh -s -- claude
+```
+
+Codex:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/paukode/simplified-technical-english-data-ai-skill/main/install.sh | sh -s -- codex
+```
+
+Kiro:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/paukode/simplified-technical-english-data-ai-skill/main/install.sh | sh -s -- kiro
+```
+
+[Whisper Studio](https://github.com/paukode/whisper-studio):
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/paukode/simplified-technical-english-data-ai-skill/main/install.sh | sh -s -- whisper
+```
+
+All four agents:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/paukode/simplified-technical-english-data-ai-skill/main/install.sh | sh -s -- all
+```
+
+The command downloads the skill to a temporary folder. Then it installs the skill and deletes the temporary folder.
+Run the same command again to update the skill. To read the script before you run it, open `install.sh`.
 
 ## What the skill does
 
@@ -30,13 +67,17 @@ The skill gives the agent these items:
 - 75 examples of text before and after the change to STE.
 - A check script that finds the errors that a program can find. The script uses Python 3.8 or a newer version, and no other packages.
 
-## Example
+## Examples
+
+### A runbook step
 
 Before:
 
-```text
-If you're seeing the high memory alert for the payments API, you should first check the dashboard to figure out whether memory has been growing steadily. If it has, the service probably has a memory leak and you'll want to restart the pods one at a time so we don't take down the whole service.
-```
+<!-- ste-check off -->
+
+> If you're seeing the high memory alert for the payments API, you should first check the dashboard to figure out whether memory has been growing steadily. If it has, the service probably has a memory leak and you'll want to restart the pods one at a time so we don't take down the whole service.
+
+<!-- ste-check on -->
 
 After:
 
@@ -45,12 +86,36 @@ After:
 > 1. Open the "Payments API" dashboard in Grafana.
 > 2. Examine the memory graph for the last 6 hours.
 > 3. If the memory increases continuously, go to step 4. If not, go to step 7.
-> 4. Restart one pod.
+> 4. Restart one pod:
+>
+>    ```bash
+>    kubectl delete pod <pod-name> -n payments
+>    ```
+>
+>    Kubernetes starts a new pod.
+> 5. Wait until the status of the new pod is `Running`.
+> 6. Do steps 4 and 5 again for each pod.
+> 7. Send a message to the `#payments-oncall` channel in Slack.
+
+### An error message
+
+Before:
+
+<!-- ste-check off -->
+
+> Oops! Something went wrong while uploading your file. It might be too big or the server could be having issues. Please try again later.
+
+<!-- ste-check on -->
+
+After:
+
+> The system did not upload the file. The file is larger than the limit of 5 GB. Divide the file into parts. Then upload each part.
 
 The folder `skills/ste-data-ai/references/examples/` has 75 examples for the 13 fields.
 
-## Install the skill
+## Install from a clone
 
+Use this method to change the skill, or to install the skill on Windows.
 Clone the repository. Then run the install script for each agent that you use:
 
 ```bash
@@ -64,7 +129,7 @@ python3 tools/install.py claude codex kiro whisper
 | Claude Code | `claude` | `~/.claude/skills/` | Type `/ste-data-ai`, or ask for STE |
 | Codex | `codex` | `~/.agents/skills/` | Type `$ste-data-ai`, or ask for STE |
 | Kiro IDE and Kiro CLI | `kiro` | `~/.kiro/skills/` | Type `/ste-data-ai`, or ask for STE |
-| Whisper Studio | `whisper` | `~/.whisper/skills/` | Ask for STE |
+| [Whisper Studio](https://github.com/paukode/whisper-studio) | `whisper` | `~/.whisper/skills/` | Ask for STE |
 
 Use `all` to install the skill for all four agents.
 The script makes a copy of the skill. Run the script again after you update the repository.
@@ -116,6 +181,9 @@ The script shows each error and each warning with its line and its rule ID.
 It also gives a list of the words that are not in the vocabulary.
 The exit status is 0 when there are no errors. Thus, you can use the script in a CI/CD pipeline.
 
+To stop the check for a part of a file, put the line `<!-- ste-check off -->` before the part. Put the line `<!-- ste-check on -->` after the part.
+This README uses these lines for the "Before" text of the examples.
+
 The script cannot find all errors. It cannot tell if a word has its narrow meaning. A person must also read the text.
 
 ## Add the names of your project
@@ -127,7 +195,7 @@ The check script reads `ste-terms.md` from the current folder. You can also give
 ## Files in this repository
 
 ```text
-skills/ste-data-ai/          the skill (the install script copies this folder)
+skills/ste-data-ai/          the skill (the install scripts copy this folder)
   SKILL.md                   the primary instructions
   agents/openai.yaml         the display name for Codex
   references/                the rules, the vocabulary, the substitutions, and the patterns
@@ -135,7 +203,8 @@ skills/ste-data-ai/          the skill (the install script copies this folder)
   references/examples/       the examples for each field
   scripts/ste_check.py       the check script
   assets/                    the template for the names of a project
-tools/install.py             installs the skill for each agent
+install.sh                   installs the skill with one command
+tools/install.py             installs the skill for each agent from a clone
 tools/build.py               makes the ZIP file and the prompt file
 tests/                       the tests
 ```
