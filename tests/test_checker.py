@@ -137,6 +137,19 @@ class WordRules(unittest.TestCase):
         )
         self.assertEqual(check(text, strict=True).findings, [])
 
+    def test_check_off_and_on_markers(self):
+        quoted = "<!-- ste-check off -->\n\n> You should restart it ASAP.\n\n<!-- ste-check on -->\n\nRestart the service.\n"
+        self.assertEqual(check(quoted, strict=True).findings, [])
+        both = "<!-- ste-check off -->\n\nYou should stop.\n\n<!-- ste-check on -->\n\nYou should stop."
+        self.assertEqual([f["location"] for f in check(both).findings if f["rule"] == "V4"], ["t:7"])
+
+    def test_code_block_in_a_block_quote_is_not_checked(self):
+        text = (
+            "> 1. Restart one pod:\n>\n>    ```bash\n>    kubectl delete pod frobnicator -n frob\n"
+            ">    ```\n>\n>    Kubernetes starts a new pod.\n> 2. Wait.\n"
+        )
+        self.assertEqual(check(text, strict=True).findings, [])
+
     def test_extra_terms_file(self):
         m = checker_module()
         with tempfile.TemporaryDirectory() as d:

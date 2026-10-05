@@ -119,6 +119,9 @@ NUMBER = re.compile(r"(?<![\w.$€£])[$€£]?\d[\d,]*(?:\.\d+)?(?:\s?" + UNIT 
 TOKEN = re.compile(r"\.?[A-Za-z0-9][A-Za-z0-9_.+#@/&'’-]*")
 TRAILING = ".-/'’&@_"
 FENCE = re.compile(r"^\s*(`{3,}|~{3,})")
+QUOTE = re.compile(r"^\s*(?:>[ \t]?)+")
+CHECK_OFF = re.compile(r"^<!--\s*ste-check\s+off\s*-->$", re.IGNORECASE)
+CHECK_ON = re.compile(r"^<!--\s*ste-check\s+on\s*-->$", re.IGNORECASE)
 LIST_ITEM = re.compile(r"^(?:[-*+]|\d+[.)])\s+(.*)$")
 RULE_LINE = re.compile(r"^(?:-{3,}|\*{3,}|_{3,})$")
 SPLIT = re.compile(r"(?<=[.!?:])\s+(?=[A-Z0-9\"“'(\[])")
@@ -377,7 +380,8 @@ def blocks(text):
     """Yield (line, kind, text) for each prose paragraph and list item.
 
     The function skips front matter, code blocks, headings, tables, rules,
-    and comments.
+    comments, and each part between `<!-- ste-check off -->` and
+    `<!-- ste-check on -->`. In a block quote, the same rules apply.
     """
     lines = text.splitlines()
     start = 0
@@ -387,7 +391,7 @@ def blocks(text):
                 start = j + 1
                 break
     out, cur, cur_line, cur_kind = [], [], 0, None
-    fence, in_comment = None, False
+    fence, in_comment, ignoring = None, False, False
 
     def flush():
         nonlocal cur, cur_kind
@@ -397,12 +401,22 @@ def blocks(text):
 
     for i in range(start, len(lines)):
         raw = lines[i]
-        s = raw.strip()
+        line = QUOTE.sub("", raw, count=1) if raw.lstrip().startswith(">") else raw
+        s = line.strip()
         if fence:
             if s.startswith(fence):
                 fence = None
             continue
-        m = FENCE.match(raw)
+        if ignoring:
+            ignoring = not CHECK_ON.match(s)
+            continue
+        if CHECK_OFF.match(s):
+            flush()
+            ignoring = True
+            continue
+        if CHECK_ON.match(s):
+            continue
+        m = FENCE.match(line)
         if m:
             flush()
             fence = m.group(1)
@@ -417,17 +431,12 @@ def blocks(text):
         if not s or s.startswith(("#", "|")) or RULE_LINE.match(s):
             flush()
             continue
-        if s.startswith(">"):
-            s = s.lstrip("> ").strip()
-            if not s:
-                flush()
-                continue
         item = LIST_ITEM.match(s)
         if item:
             flush()
             cur, cur_line, cur_kind = [item.group(1)], i + 1, "item"
             continue
-        if cur_kind == "item" and raw[:1] in (" ", "\t"):
+        if cur_kind == "item" and line[:1] in (" ", "\t"):
             cur.append(s)
             continue
         if cur_kind == "item":

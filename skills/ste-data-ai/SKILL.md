@@ -145,6 +145,8 @@ After you write, check the text:
 
 The script also reads the technical names in the file `ste-terms.md` of the current folder. The template for this file is `assets/ste-terms-template.md`.
 
+To stop the check for a part of a file, put the line `<!-- ste-check off -->` before the part. Put the line `<!-- ste-check on -->` after the part.
+
 If you cannot run a script, do these checks manually:
 
 - Find semicolons, contractions, and "-ing" words. Correct them.
